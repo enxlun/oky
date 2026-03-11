@@ -1,6 +1,8 @@
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { PressableScale } from "@/components/PressableScale";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Modal,
@@ -10,8 +12,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AnimatedCard, FloatingEmoji } from "@/components/AnimatedCard";
-import { PressableScale } from "@/components/PressableScale";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { useTheme } from "../context/ThemeContext";
 
 export default function CalendarSection() {
@@ -20,7 +28,7 @@ export default function CalendarSection() {
 
   const todayStats = {
     day: 12,
-    status: "Төрөх өдөр хүртэл",
+    status: "Өндгөн эс гадагшлах үе",
     symptoms: ["Толгой өвдөх", "Ядрах"],
   };
 
@@ -42,6 +50,36 @@ export default function CalendarSection() {
   ];
 
   const currentFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+
+  const mascotX = useSharedValue(0);
+  const mascotY = useSharedValue(0);
+
+  useEffect(() => {
+    const softEase = Easing.inOut(Easing.ease);
+
+    mascotX.value = withRepeat(
+      withSequence(
+        withTiming(-8, { duration: 3000, easing: softEase }),
+        withTiming(8, { duration: 3000, easing: softEase })
+      ),
+      -1,
+      true
+    );
+
+    mascotY.value = withRepeat(
+      withSequence(
+        withTiming(0, { duration: 1200, easing: softEase }),
+        withTiming(-8, { duration: 600, easing: softEase }),
+        withTiming(0, { duration: 900, easing: softEase })
+      ),
+      -1,
+      false
+    );
+  }, []);
+
+  const mascotAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: mascotX.value }, { translateY: mascotY.value }],
+  }));
 
   return (
     <LinearGradient
@@ -77,32 +115,28 @@ export default function CalendarSection() {
           </PressableScale>
         </View>
 
-        {/* Decorative Emojis */}
-        <View style={styles.emojiRow}>
-          <FloatingEmoji delay={0}>
-            <Text style={styles.emoji}>🌸</Text>
-          </FloatingEmoji>
-          <FloatingEmoji delay={200}>
-            <Text style={styles.emoji}>🦋</Text>
-          </FloatingEmoji>
-          <FloatingEmoji delay={400}>
-            <Text style={styles.emoji}>✨</Text>
-          </FloatingEmoji>
-          <FloatingEmoji delay={600}>
-            <Text style={styles.emoji}>🌈</Text>
-          </FloatingEmoji>
-        </View>
-
-        {/* Today's Stats */}
-        <AnimatedCard delay={100} bounce>
-          <LinearGradient
-            colors={
-              isDarkMode
-                ? ["rgba(219, 48, 122, 0.4)", "rgba(143, 29, 128, 0.4)"]
-                : ["rgba(251, 207, 232, 0.8)", "rgba(233, 213, 255, 0.8)"]
-            }
-            style={styles.statsCard}
+        <View style={styles.statsSection}>
+          <Animated.View
+            style={[styles.mascotBackdrop, mascotAnimatedStyle]}
+            pointerEvents="none"
           >
+            <Image
+              source={require("../assets/images/oky.png")}
+              style={styles.mascotBackdropImage}
+              resizeMode="contain"
+            />
+          </Animated.View>
+
+          {/* Today's Stats */}
+          <AnimatedCard delay={100} bounce>
+            <LinearGradient
+              colors={
+                isDarkMode
+                  ? ["rgba(219, 48, 122, 0.4)", "rgba(143, 29, 128, 0.4)"]
+                  : ["rgba(251, 207, 232, 0.8)", "rgba(233, 213, 255, 0.8)"]
+              }
+              style={styles.statsCard}
+            >
             <View style={styles.statsHeader}>
               <LinearGradient
                 colors={["#DB307A", "#8F1D80"]}
@@ -201,8 +235,9 @@ export default function CalendarSection() {
                 </View>
               </LinearGradient>
             )}
-          </LinearGradient>
-        </AnimatedCard>
+            </LinearGradient>
+          </AnimatedCard>
+        </View>
 
         {/* Weekly Stats */}
         <View style={styles.weeklySection}>
@@ -475,14 +510,21 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 50,
   },
-  emojiRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: 16,
-    marginBottom: 12,
+  statsSection: {
+    position: "relative",
+    marginTop: 8,
   },
-  emoji: {
-    fontSize: 30,
+  mascotBackdrop: {
+    position: "absolute",
+    top: -110,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 0,
+  },
+  mascotBackdropImage: {
+    width: 260,
+    height: 260,
   },
   statsCard: {
     marginHorizontal: 16,
@@ -490,6 +532,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 4,
     borderColor: "white",
+    zIndex: 1,
   },
   statsHeader: {
     flexDirection: "row",

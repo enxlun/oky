@@ -1,16 +1,19 @@
+import { AnimatedCard } from "@/components/AnimatedCard";
+import { PressableScale } from "@/components/PressableScale";
+import { API_BASE_URL } from "@/constants/api";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { AnimatedCard } from "@/components/AnimatedCard";
-import { PressableScale } from "@/components/PressableScale";
-import { API_BASE_URL } from "@/constants/api";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../context/ThemeContext";
 
 interface CategoryType {
@@ -33,6 +36,7 @@ export default function InformationSection() {
   const [inputMessage, setInputMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const { isDarkMode } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const categories: CategoryType[] = [
     {
@@ -161,6 +165,105 @@ export default function InformationSection() {
   const selectedCat = categories.find((c) => c.id === selectedCategory);
   const canSend = inputMessage.trim().length > 0 && !isSending;
 
+
+  const headerSection = (
+    <View style={styles.header}>
+      <View style={styles.titleRow}>
+        <Text
+          style={[
+            styles.headerTitle,
+            { color: isDarkMode ? "#F9A8D4" : "#8F1D80" },
+          ]}
+        >
+          Мэдээлэл ба Зөвлөгөө
+        </Text>
+      </View>
+
+      {/* Mode Toggle */}
+      <View style={styles.toggleRow}>
+        <PressableScale
+          onPress={() => {
+            setIsChatMode(false);
+            setSelectedCategory(null);
+          }}
+          style={styles.toggleButton}
+          scaleValue={0.97}
+        >
+          <LinearGradient
+            colors={
+              !isChatMode
+                ? ["#32B8DE", "#A4D233"]
+                : isDarkMode
+                  ? ["rgba(55, 65, 81, 0.8)", "rgba(55, 65, 81, 0.8)"]
+                  : ["rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.8)"]
+            }
+            style={styles.toggleGradient}
+          >
+            <Ionicons
+              name="book"
+              size={20}
+              color={!isChatMode ? "white" : isDarkMode ? "#D1D5DB" : "#374151"}
+            />
+            <Text
+              style={[
+                styles.toggleText,
+                {
+                  color: !isChatMode
+                    ? "white"
+                    : isDarkMode
+                      ? "#D1D5DB"
+                      : "#374151",
+                },
+              ]}
+            >
+              Унших
+            </Text>
+          </LinearGradient>
+        </PressableScale>
+
+        <PressableScale
+          onPress={() => {
+            setIsChatMode(true);
+            setSelectedCategory(null);
+          }}
+          style={styles.toggleButton}
+          scaleValue={0.97}
+        >
+          <LinearGradient
+            colors={
+              isChatMode
+                ? ["#DB307A", "#8F1D80"]
+                : isDarkMode
+                  ? ["rgba(55, 65, 81, 0.8)", "rgba(55, 65, 81, 0.8)"]
+                  : ["rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.8)"]
+            }
+            style={styles.toggleGradient}
+          >
+            <Ionicons
+              name="chatbubbles"
+              size={20}
+              color={isChatMode ? "white" : isDarkMode ? "#D1D5DB" : "#374151"}
+            />
+            <Text
+              style={[
+                styles.toggleText,
+                {
+                  color: isChatMode
+                    ? "white"
+                    : isDarkMode
+                      ? "#D1D5DB"
+                      : "#374151",
+                },
+              ]}
+            >
+              OKY туслах
+            </Text>
+          </LinearGradient>
+        </PressableScale>
+      </View>
+    </View>
+  );
+
   return (
     <LinearGradient
       colors={
@@ -170,237 +273,15 @@ export default function InformationSection() {
       }
       style={styles.container}
     >
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.titleRow}>
-            <Text style={styles.headerEmoji}>📚</Text>
-            <Text
-              style={[
-                styles.headerTitle,
-                { color: isDarkMode ? "#F9A8D4" : "#8F1D80" },
-              ]}
-            >
-              Мэдээлэл ба Зөвлөгөө
-            </Text>
-            <Text style={styles.headerEmoji}>💬</Text>
-          </View>
-
-          {/* Mode Toggle */}
-          <View style={styles.toggleRow}>
-            <PressableScale
-              onPress={() => {
-                setIsChatMode(false);
-                setSelectedCategory(null);
-              }}
-              style={styles.toggleButton}
-              scaleValue={0.97}
-            >
-              <LinearGradient
-                colors={
-                  !isChatMode
-                    ? ["#32B8DE", "#A4D233"]
-                    : isDarkMode
-                      ? ["rgba(55, 65, 81, 0.8)", "rgba(55, 65, 81, 0.8)"]
-                      : ["rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.8)"]
-                }
-                style={styles.toggleGradient}
-              >
-                <Ionicons
-                  name="book"
-                  size={20}
-                  color={
-                    !isChatMode ? "white" : isDarkMode ? "#D1D5DB" : "#374151"
-                  }
-                />
-                <Text
-                  style={[
-                    styles.toggleText,
-                    {
-                      color: !isChatMode
-                        ? "white"
-                        : isDarkMode
-                          ? "#D1D5DB"
-                          : "#374151",
-                    },
-                  ]}
-                >
-                  Унших
-                </Text>
-              </LinearGradient>
-            </PressableScale>
-
-            <PressableScale
-              onPress={() => {
-                setIsChatMode(true);
-                setSelectedCategory(null);
-              }}
-              style={styles.toggleButton}
-              scaleValue={0.97}
-            >
-              <LinearGradient
-                colors={
-                  isChatMode
-                    ? ["#DB307A", "#8F1D80"]
-                    : isDarkMode
-                      ? ["rgba(55, 65, 81, 0.8)", "rgba(55, 65, 81, 0.8)"]
-                      : ["rgba(255, 255, 255, 0.8)", "rgba(255, 255, 255, 0.8)"]
-                }
-                style={styles.toggleGradient}
-              >
-                <Ionicons
-                  name="chatbubbles"
-                  size={20}
-                  color={
-                    isChatMode ? "white" : isDarkMode ? "#D1D5DB" : "#374151"
-                  }
-                />
-                <Text
-                  style={[
-                    styles.toggleText,
-                    {
-                      color: isChatMode
-                        ? "white"
-                        : isDarkMode
-                          ? "#D1D5DB"
-                          : "#374151",
-                    },
-                  ]}
-                >
-                  Чат
-                </Text>
-              </LinearGradient>
-            </PressableScale>
-          </View>
-        </View>
-
-        {/* Reading Mode - Category List */}
-        {!isChatMode && !selectedCategory && (
-          <View style={styles.categoriesContainer}>
-            {categories.map((category, index) => (
-              <AnimatedCard key={category.id} delay={index * 70}>
-                <PressableScale
-                  onPress={() => setSelectedCategory(category.id)}
-                  scaleValue={0.97}
-                >
-                  <LinearGradient
-                    colors={
-                      isDarkMode
-                        ? [`${category.color}25`, `${category.color}10`]
-                        : [`${category.color}15`, `${category.color}05`]
-                    }
-                    style={[
-                      styles.categoryCard,
-                      {
-                        backgroundColor: isDarkMode
-                          ? "rgba(31, 41, 55, 0.9)"
-                          : "rgba(255, 255, 255, 0.9)",
-                        borderLeftColor: category.color,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.categoryIcon,
-                        {
-                          backgroundColor: `${category.color}40`,
-                          borderColor: isDarkMode ? category.color : "white",
-                        },
-                      ]}
-                    >
-                      <Text style={styles.categoryIconText}>{category.icon}</Text>
-                    </View>
-                    <View style={styles.categoryContent}>
-                      <Text
-                        style={[styles.categoryTitle, { color: category.color }]}
-                      >
-                        {category.title}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.categorySubtitle,
-                          { color: isDarkMode ? "#D1D5DB" : "#4B5563" },
-                        ]}
-                      >
-                        Дэлгэрэнгүй унших →
-                      </Text>
-                    </View>
-                  </LinearGradient>
-                </PressableScale>
-              </AnimatedCard>
-            ))}
-          </View>
-        )}
-
-        {/* Category Detail View */}
-        {!isChatMode && selectedCategory && selectedCat && (
-          <View style={styles.detailContainer}>
-            <PressableScale
-              onPress={() => setSelectedCategory(null)}
-              style={styles.backButton}
-              scaleValue={0.98}
-            >
-              <Ionicons
-                name="arrow-back"
-                size={20}
-                color={isDarkMode ? "#E5E7EB" : "#374151"}
-              />
-              <Text
-                style={[
-                  styles.backText,
-                  { color: isDarkMode ? "#E5E7EB" : "#374151" },
-                ]}
-              >
-                Буцах
-              </Text>
-            </PressableScale>
-
-            <AnimatedCard delay={120} bounce>
-              <View
-                style={[
-                  styles.detailCard,
-                  {
-                    backgroundColor: isDarkMode
-                      ? "rgba(31, 41, 55, 0.9)"
-                      : "rgba(255, 255, 255, 0.8)",
-                  },
-                ]}
-              >
-                <View style={styles.detailHeader}>
-                  <Text style={styles.detailIcon}>{selectedCat.icon}</Text>
-                  <Text
-                    style={[styles.detailTitle, { color: selectedCat.color }]}
-                  >
-                    {selectedCat.title}
-                  </Text>
-                </View>
-                <View style={styles.detailContent}>
-                  {selectedCat.content.map((text, index) => (
-                    <Text
-                      key={index}
-                      style={[
-                        styles.detailText,
-                        index === 0 && styles.detailTextBold,
-                        { color: isDarkMode ? "#E5E7EB" : "#1F2937" },
-                      ]}
-                    >
-                      {text}
-                    </Text>
-                  ))}
-                </View>
-              </View>
-            </AnimatedCard>
-          </View>
-        )}
-
-        {/* Chat Mode */}
-        {isChatMode && (
+      {isChatMode ? (
+        <KeyboardAvoidingView
+          style={styles.chatScreen}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        >
+          {headerSection}
           <View style={styles.chatContainer}>
-            <AnimatedCard delay={120}>
+            <AnimatedCard delay={120} style={styles.messagesCard}>
               <View
                 style={[
                   styles.messagesContainer,
@@ -411,7 +292,11 @@ export default function InformationSection() {
                   },
                 ]}
               >
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                  contentContainerStyle={styles.messagesContent}
+                >
                   {messages.map((message, index) => (
                     <View
                       key={index}
@@ -466,7 +351,12 @@ export default function InformationSection() {
               </View>
             </AnimatedCard>
 
-            <View style={styles.inputContainer}>
+            <View
+              style={[
+                styles.inputContainer,
+                { paddingBottom: 48 + insets.bottom },
+              ]}
+            >
               <TextInput
                 value={inputMessage}
                 onChangeText={setInputMessage}
@@ -487,18 +377,156 @@ export default function InformationSection() {
                 ]}
                 onSubmitEditing={handleSendMessage}
               />
-              <PressableScale onPress={canSend ? handleSendMessage : undefined} scaleValue={0.92}>
+              <PressableScale
+                onPress={canSend ? handleSendMessage : undefined}
+                scaleValue={0.92}
+              >
                 <LinearGradient
                   colors={["#FFE700", "#FF9800"]}
-                  style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
+                  style={[
+                    styles.sendButton,
+                    !canSend && styles.sendButtonDisabled,
+                  ]}
                 >
                   <Ionicons name="send" size={24} color="white" />
                 </LinearGradient>
               </PressableScale>
             </View>
           </View>
-        )}
-      </ScrollView>
+        </KeyboardAvoidingView>
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {headerSection}
+
+          {/* Reading Mode - Category List */}
+          {!selectedCategory && (
+            <View style={styles.categoriesContainer}>
+              {categories.map((category, index) => (
+                <AnimatedCard key={category.id} delay={index * 70}>
+                  <PressableScale
+                    onPress={() => setSelectedCategory(category.id)}
+                    scaleValue={0.97}
+                  >
+                    <LinearGradient
+                      colors={
+                        isDarkMode
+                          ? [`${category.color}25`, `${category.color}10`]
+                          : [`${category.color}15`, `${category.color}05`]
+                      }
+                      style={[
+                        styles.categoryCard,
+                        {
+                          backgroundColor: isDarkMode
+                            ? "rgba(31, 41, 55, 0.9)"
+                            : "rgba(255, 255, 255, 0.9)",
+                          borderLeftColor: category.color,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.categoryIcon,
+                          {
+                            backgroundColor: `${category.color}40`,
+                            borderColor: isDarkMode ? category.color : "white",
+                          },
+                        ]}
+                      >
+                        <Text style={styles.categoryIconText}>
+                          {category.icon}
+                        </Text>
+                      </View>
+                      <View style={styles.categoryContent}>
+                        <Text
+                          style={[
+                            styles.categoryTitle,
+                            { color: category.color },
+                          ]}
+                        >
+                          {category.title}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.categorySubtitle,
+                            { color: isDarkMode ? "#D1D5DB" : "#4B5563" },
+                          ]}
+                        >
+                          Дэлгэрэнгүй унших →
+                        </Text>
+                      </View>
+                    </LinearGradient>
+                  </PressableScale>
+                </AnimatedCard>
+              ))}
+            </View>
+          )}
+
+          {/* Category Detail View */}
+          {selectedCategory && selectedCat && (
+            <View style={styles.detailContainer}>
+              <PressableScale
+                onPress={() => setSelectedCategory(null)}
+                style={styles.backButton}
+                scaleValue={0.98}
+              >
+                <Ionicons
+                  name="arrow-back"
+                  size={20}
+                  color={isDarkMode ? "#E5E7EB" : "#374151"}
+                />
+                <Text
+                  style={[
+                    styles.backText,
+                    { color: isDarkMode ? "#E5E7EB" : "#374151" },
+                  ]}
+                >
+                  Буцах
+                </Text>
+              </PressableScale>
+
+              <AnimatedCard delay={120} bounce>
+                <View
+                  style={[
+                    styles.detailCard,
+                    {
+                      backgroundColor: isDarkMode
+                        ? "rgba(31, 41, 55, 0.9)"
+                        : "rgba(255, 255, 255, 0.8)",
+                    },
+                  ]}
+                >
+                  <View style={styles.detailHeader}>
+                    <Text style={styles.detailIcon}>{selectedCat.icon}</Text>
+                    <Text
+                      style={[styles.detailTitle, { color: selectedCat.color }]}
+                    >
+                      {selectedCat.title}
+                    </Text>
+                  </View>
+                  <View style={styles.detailContent}>
+                    {selectedCat.content.map((text, index) => (
+                      <Text
+                        key={index}
+                        style={[
+                          styles.detailText,
+                          index === 0 && styles.detailTextBold,
+                          { color: isDarkMode ? "#E5E7EB" : "#1F2937" },
+                        ]}
+                      >
+                        {text}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              </AnimatedCard>
+            </View>
+          )}
+        </ScrollView>
+      )}
     </LinearGradient>
   );
 }
@@ -635,15 +663,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  chatScreen: {
+    flex: 1,
+  },
   chatContainer: {
     flex: 1,
     paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  messagesCard: {
+    flex: 1,
   },
   messagesContainer: {
-    height: 400,
+    flex: 1,
+    minHeight: 240,
     borderRadius: 24,
     padding: 16,
     marginBottom: 16,
+  },
+  messagesContent: {
+    paddingBottom: 8,
   },
   messageWrapper: {
     marginBottom: 12,
